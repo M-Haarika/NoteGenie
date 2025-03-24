@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Notes Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        body {
+            background: linear-gradient(to right, #5a3780, #a2a2a3);
+            color: rgb(68, 50, 114);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .logout-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 18px;
+            background: rgb(228, 222, 244);
+            color: black;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .logout-btn:hover {
+            background: darkred;
+        }
+        .container {
+            background: rgba(234, 237, 241, 0.907);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            width: 90%;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+        }
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 120px;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            resize: none;
+        }
+        .btn {
+            width: 100%;
+            padding: 12px;
+            background: white;
+            color: #2575fc;
+            font-size: 1rem;
+            border: none;
+            cursor: pointer;
+            border-radius: 5px;
+            transition: 0.3s;
+        }
+        .btn:hover {
+            background: #e0e0e0;
+        }
+        .output-container {
+            margin-top: 15px;
+            text-align: left;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        #generateBtn{
+            background-color: rgb(68, 50, 114);
+            color:white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ✅ Logout Button -->
+    <button class="logout-btn" onclick="logout()">Logout</button>
+
+    <div class="container">
+        <h2>Smart Notes Generator</h2>
+        <textarea id="textInput" placeholder="Enter your text..."></textarea>
+        <button class="btn" id="generateBtn">Generate Notes</button>
+        &nbsp;
+        <h3>Output:</h3>
+        <div class="output-container">
+            <p id="output">Your summarized notes will appear here...</p>
+        </div>
+    </div>
+
+    <script>
+        function summarizeText(text) {
+            let sentences = text.split(". ");
+            if (sentences.length <= 2) {
+                return "Text is too short to summarize.";
+            }
+            
+            let wordCounts = {};
+            sentences.forEach(sentence => {
+                sentence.split(" ").forEach(word => {
+                    word = word.toLowerCase().replace(/[^a-z]/g, "");
+                    if (word) {
+                        wordCounts[word] = (wordCounts[word] || 0) + 1;
+                    }
+                });
+            });
+
+            let scoredSentences = sentences.map(sentence => {
+                let words = sentence.split(" ");
+                let score = words.reduce((sum, word) => sum + (wordCounts[word.toLowerCase().replace(/[^a-z]/g, "")] || 0), 0);
+                return { sentence, score };
+            });
+
+            scoredSentences.sort((a, b) => b.score - a.score);
+            let summary = scoredSentences.slice(0, Math.ceil(sentences.length / 3)).map(s => s.sentence).join(". ");
+            return summary;
+        }
+
+        document.getElementById("generateBtn").addEventListener("click", function () {
+            let inputText = document.getElementById("textInput").value.trim();
+            if (!inputText) {
+                alert("Please enter some text!");
+                return;
+            }
+
+            let summary = summarizeText(inputText);
+            document.getElementById("output").innerText = summary;
+        });
+
+        // ✅ Logout Functionality
+        function logout() {
+            localStorage.removeItem("loggedInUser"); // Remove user session
+            window.location.href = "login.html"; // Redirect to login page
+        }
+    </script>
+
+</body>
+</html>
